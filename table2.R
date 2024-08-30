@@ -47,10 +47,53 @@ a4 <- lm_robust(as.formula(paste("enrollment_secschool ~ treat1_female_bihar + t
                weights = hhwt,
                clusters = village)
 
+
+
 #replicate table 2
-huxreg(a1, a2, a3, a4)
+tab2 <- huxreg(a1, a2, a3, a4, coefs = c("Treat*female*Bihar" = "treat1_female_bihar",
+                                 "Treat*female" = "treat1_female",
+                                 "Treat*Bihar" = "treat1_bihar",
+                                 "Female*Bihar" = "female_bihar",
+                                 "Treat" = "treat1",
+                                 "Female" = "female",
+                                 "Bihar" = "bihar",
+                                 "Constant" = "(Intercept)"),
+       omit_coefs = c("sc", "st", "obc", "hindu", "muslim", 
+                      "hhheadschool", "hhheadmale", "land", "bpl", "media", "electricity",
+                      "middle", "bank", "postoff", "lcurrpop",
+                      "busdist", "towndist", "railwaydist", "hqdist"),
+       stars=NULL,
+       digits=3
+)
 
-stargazer(a1, a2, a3, a4, type="text", align=TRUE, digits=3, 
-          dep.var.labels = "Enroll")
+demorow <- c("Demographic controls", "NO", "YES", "YES", "YES")
+hhrow <- c("HH socioeconomic controls", "NO", "NO", "YES", "YES")
+vilrow <- c("Village level controls", "NO", "NO", "NO", "YES")
 
+demorow <- data.frame(demorow)
+hhrow <- data.frame(hhrow)
+vilrow <- data.frame(vilrow)
+
+# transpose
+demorow <- t(demorow)
+hhrow <- t(hhrow)
+vilrow <- t(vilrow)
+
+# convert to data frame
+demorow <- data.frame(demorow)
+hhrow <- data.frame(hhrow)
+vilrow <- data.frame(vilrow)
+
+rows <- bind_rows(demorow, hhrow, vilrow)
+colnames(rows) <- colnames(tab2) 
+tab2_rows <- rbind(tab2, rows)
+class(tab2)
+
+
+
+
+
+
+
+, hhrow, vilrow
 
