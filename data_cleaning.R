@@ -1,5 +1,5 @@
 #load package
-pacman::p_load(haven, tidyverse, readstata13)
+pacman::p_load(haven, tidyverse, readstata13, stats)
 
 #read data
 data <- haven::read_dta("C:/Users/Owner/Indian-cycling-B/replication data/113676-V1/dlhs_long_wdist.dta")
@@ -21,15 +21,15 @@ data <- data %>%
     
     child_sample = ifelse(relationship %in% c(3, 5, 8, 10), 1, ifelse(is.na(relationship), 0, NA)),
     
-    sc = ifelse(hv116b == 1, 1, ifelse(is.na(hv116b), 0, NA)),
-    st = ifelse(hv116b == 2, 1, ifelse(is.na(hv116b), 0, NA)),
-    obc = ifelse(hv116b == 3, 1, ifelse(is.na(hv116b), 0, NA)),
-    highcaste = ifelse(hv116b == 4, 1, ifelse(is.na(hv116b), 0, NA)),
-    scst = ifelse(hv116b %in% c(1, 2), 1, ifelse(is.na(hv116b), 0, NA)),
+    sc = ifelse(hv116b == 1, 1, if_else(is.na(hv116b), 0, 0)),
+    st = ifelse(hv116b == 2, 1, if_else(is.na(hv116b), 0, 0)),
+    obc = ifelse(hv116b == 3, 1, if_else(is.na(hv116b), 0, 0)),
+    highcaste = ifelse(hv116b == 4, 1, if_else(is.na(hv116b), 0, 0)),
+    scst = ifelse(hv116b %in% c(1, 2), 1, if_else(is.na(hv116b), 0, 0)),
     
-    hindu = ifelse(hv115 == 1, 1, ifelse(is.na(hv115), 0, NA)),
-    muslim = ifelse(hv115 == 2, 1, ifelse(is.na(hv115), 0, NA)),
-    other = ifelse(hv115 > 2, 1, ifelse(is.na(hv115), 0, NA)),
+    hindu = ifelse(hv115 == 1, 1, if_else(is.na(hv116b), 0, 0)),
+    muslim = ifelse(hv115 == 2, 1, if_else(is.na(hv116b), 0, 0)),
+    other = ifelse(hv115 > 2, 1, if_else(is.na(hv116b), 0, 0)),
     
     electricity = ifelse(hv129a == 1, 1, ifelse(hv129a == 2, 0, NA)),
     mattress = ifelse(hv129b == 1, 1, ifelse(hv129b == 2, 0, NA)),
@@ -52,10 +52,10 @@ data <- data %>%
     water_pump = ifelse(hv129x == 1, 1, ifelse(hv129x == 2, 0, NA)),
     thresher = ifelse(hv129y == 1, 1, ifelse(hv129y == 2, 0, NA)),
     bike = ifelse(hv129s == 1, 1, ifelse(is.na(hv129s), 0, NA)),
-    media = ifelse(hv129i == 1 | hv129j == 1 | hv129k == 1, 1, ifelse(is.na(hv129i) & is.na(hv129j) & is.na(hv129k), 0, NA)),
-    
-    land = ifelse(hv130 == 2 | hv131 < 5, 1, NA),
-    bpl = ifelse(hv134 == 1, 1, ifelse(hv134 == 2, 0, NA)),
+    media = ifelse(hv129i == 1 | hv129j == 1 | hv129k == 1, 1, 0),
+    #後で修正
+    land = ifelse(hv130 == 2 | hv131 < 5, 1, 0),
+    bpl = ifelse(hv134 == 1, 1, 0),
     
     secschool = ifelse(v115ca1 == 1, 1, ifelse(v115ca1 == 2, 0, NA)),
     secondarydist = ifelse(v115ca1 == 1 | v115cb1 == 1, 0, v115c2),
@@ -132,7 +132,8 @@ data <- data %>% mutate(
                      TRUE~NA_real_
                      ) 
 )
-  data<-data %>% mutate(
+
+data<-data %>% mutate(
   treat1_scst = treat1*scst,
   treat1_sc = treat1*sc,
   treat1_st = treat1*st,
@@ -179,7 +180,7 @@ data <- data %>% mutate(
   
   bihar_longdist = bihar*longdist,
   
-    treat1_bihar_sc = treat1*bihar*sc,
+  treat1_bihar_sc = treat1*bihar*sc,
   treat2_bihar_sc = treat2*bihar*sc,
   treat3_bihar_sc = treat3*bihar*sc,
   treat4_bihar_sc = treat4*bihar*sc,
@@ -219,13 +220,13 @@ data <- data %>% mutate(
   female_bihar_st = female*bihar*st,
   female_bihar_obc = female*bihar*obc,
   
-    treat1_female_bihar_longdist = treat1*female*bihar*longdist,
+  treat1_female_bihar_longdist = treat1*female*bihar*longdist,
   treat2_female_bihar_longdist = treat2*female*bihar*longdist,
   treat3_female_bihar_longdist = treat3*female*bihar*longdist,
   treat4_female_bihar_longdist = treat4*female*bihar*longdist,
   treat5_female_bihar_longdist = treat5*female*bihar*longdist,
 
-    treat1_female_bihar_sc = treat1*female*bihar*sc,
+  treat1_female_bihar_sc = treat1*female*bihar*sc,
   treat2_female_bihar_sc = treat2*female*bihar*sc,
   treat3_female_bihar_sc = treat3*female*bihar*sc,
   treat4_female_bihar_sc = treat4*female*bihar*sc,
@@ -244,7 +245,7 @@ data <- data %>% mutate(
   treat5_female_bihar_obc = treat5*female*bihar*obc,
   
  
-    treat1_female_bihar = treat1*female*bihar,
+  treat1_female_bihar = treat1*female*bihar,
   treat2_female_bihar = treat2*female*bihar,
   treat3_female_bihar = treat3*female*bihar,
   treat4_female_bihar = treat4*female*bihar,
@@ -264,7 +265,7 @@ data <- data %>% mutate(
   
   female_bihar = female*bihar,
   
-    treat1_bihar_longdist = treat1*bihar*longdist,
+  treat1_bihar_longdist = treat1*bihar*longdist,
   treat2_bihar_longdist = treat2*bihar*longdist,
   treat3_bihar_longdist = treat3*bihar*longdist,
   treat4_bihar_longdist = treat4*bihar*longdist,
@@ -279,5 +280,16 @@ data <- data %>% mutate(
   female_bihar_longdist = female*bihar*longdist
 )
 
-  
-  #line 512までOK
+data <- data %>% 
+  mutate(
+    hhheadschool = replace_na(hhheadschool, 0)
+  )
+
+#line 512までOK
+
+#主成分分析
+pca_asset <- prcomp(data[, c("land", "bpl", "media", "electricity")], scale=TRUE)
+data$pca_asset <- pca_asset$x[, 1]
+
+pca_ses <- prcomp(data[, c("sc", "st", "obc", "hindu", "muslim", "hhheadschool",
+                           "land", "bpl", "media", "electricity")], scale = TRUE)
