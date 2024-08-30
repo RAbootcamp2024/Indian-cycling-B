@@ -1,7 +1,7 @@
 #load package
 pacman::p_load(haven, tidyverse, readstata13, stats,
                lmtest, sandwich, clubSandwich, stargazer, estimatr, 
-               broom, huxtable)
+               broom, huxtable, openxlsx, jtools)
 
 data <- read_dta("C:/Users/Owner/Indian-cycling-B/replication data/113676-V1/dlhs-reg-data.dta")
 
@@ -66,6 +66,9 @@ tab2 <- huxreg(a1, a2, a3, a4, coefs = c("Treat*female*Bihar" = "treat1_female_b
        digits=3
 )
 
+
+#tab2 <- set_number_format(tab2, "%.3f")
+
 demorow <- c("Demographic controls", "NO", "YES", "YES", "YES")
 hhrow <- c("HH socioeconomic controls", "NO", "NO", "YES", "YES")
 vilrow <- c("Village level controls", "NO", "NO", "NO", "YES")
@@ -84,16 +87,27 @@ demorow <- data.frame(demorow)
 hhrow <- data.frame(hhrow)
 vilrow <- data.frame(vilrow)
 
+# 
 rows <- bind_rows(demorow, hhrow, vilrow)
 colnames(rows) <- colnames(tab2) 
 tab2_rows <- rbind(tab2, rows)
-class(tab2)
+
+tab2_rows[1,] <- c("","(1)","(2)","(3)","(4)")
+
+pdf_file <- "tab2.pdf"
+quick_xlsx(tab2_rows, file="C:/Users/Owner/Indian-cycling-B/output")
 
 
 
+install.packages("gt")
+install.packages("gtExtras")
+install.packages("kableExtra")
 
+library(gt)
+library(gtExtras)
+library(kableExtra)
 
-
-
-, hhrow, vilrow
+tab2_rows %>% 
+  gt() %>%
+  fmt_number(columns = 1:5, decimals = 3)
 
